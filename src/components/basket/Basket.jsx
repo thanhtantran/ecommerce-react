@@ -1,14 +1,17 @@
 /* eslint-disable max-len */
+import firebase from '@/services/firebase';
 import { BasketItem, BasketToggle } from '@/components/basket';
 import { Boundary, Modal } from '@/components/common';
 import { CHECKOUT_STEP_1 } from '@/constants/routes';
-import firebase from 'firebase/firebase';
 import { calculateTotal, displayMoney } from '@/helpers/utils';
 import { useDidMount, useModal } from '@/hooks';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { clearBasket } from '@/redux/actions/basketActions';
+
+const auth = firebase.auth;
+const db = firebase.db;
 
 const Basket = () => {
   const { isOpenModal, onOpenModal, onCloseModal } = useModal();
@@ -22,19 +25,23 @@ const Basket = () => {
   const didMount = useDidMount();
 
   useEffect(() => {
-    if (didMount && firebase.auth.currentUser && basket.length !== 0) {
-      firebase.saveBasketItems(basket, firebase.auth.currentUser.uid)
-        .then(() => {
+    const saveBasketItems = async () => {
+      if (didMount && auth.currentUser && basket.length !== 0) {
+        try {
+          const userBasketRef = doc(db, "baskets", auth.currentUser.uid);
+          await setDoc(userBasketRef, { basket });
           console.log('Item saved to basket');
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    }
+        } catch (e) {
+          console.error("Error saving basket:", e);
+        }
+      }
+    };
+
+    saveBasketItems();
   }, [basket.length]);
 
   const onCheckOut = () => {
-    if ((basket.length !== 0 && user)) {
+    if (basket.length !== 0 && user) {
       document.body.classList.remove('is-basket-open');
       history.push(CHECKOUT_STEP_1);
     } else {
@@ -56,10 +63,7 @@ const Basket = () => {
 
   return user && user.role === 'ADMIN' ? null : (
     <Boundary>
-      <Modal
-        isOpen={isOpenModal}
-        onRequestClose={onCloseModal}
-      >
+      <Modal isOpen={isOpenModal} onRequestClose={onCloseModal}>
         <p className="text-center">You must sign in to continue checking out</p>
         <br />
         <div className="d-flex-center">
@@ -118,29 +122,12 @@ const Basket = () => {
           )}
           {basket.map((product, i) => (
             <BasketItem
-              // eslint-disable-next-line react/no-array-index-key
               key={`${product.id}_${i}`}
               product={product}
               basket={basket}
               dispatch={dispatch}
             />
           ))}
-        </div>
-        <div className="basket-checkout">
-          <div className="basket-total">
-            <p className="basket-total-title">Subtotal Amout:</p>
-            <h2 className="basket-total-amount">
-              {displayMoney(calculateTotal(basket.map((product) => product.price * product.quantity)))}
-            </h2>
-          </div>
-          <button
-            className="basket-checkout-button button"
-            disabled={basket.length === 0 || pathname === '/checkout'}
-            onClick={onCheckOut}
-            type="button"
-          >
-            Check Out
-          </button>
         </div>
       </div>
     </Boundary>

@@ -11,7 +11,8 @@
   ],
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm:server\" \"vite\"",
+    "server": "node server/index.js",
     "build": "vite build  && cd dist && cp index.html 404.html",
     "serve": "vite preview",
     "test": "cross-env NODE_ENV=test jest --config=jest.config.json"
@@ -53,6 +54,12 @@
     "workbox-webpack-plugin": "^6.1.5"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.4.3",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
     "@ant-design/icons": "^4.6.2",
     "firebase": "^11.5.0",
     "formik": "^2.2.6",

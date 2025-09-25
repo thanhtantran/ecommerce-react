@@ -22,7 +22,7 @@ const root = document.getElementById('app');
 // Render the preloader on initial load
 render(<Preloader />, root);
 
-firebase.auth.onAuthStateChanged((user) => {
+firebase.onAuthStateChanged((user) => {
   if (user) {
     store.dispatch(onAuthStateSuccess(user));
   } else {

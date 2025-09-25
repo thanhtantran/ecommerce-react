@@ -74,12 +74,9 @@ function* productSaga({ type, payload }) {
         let images = [];
 
         if (imageCollection.length !== 0) {
-          const imageKeys = yield all(imageCollection.map(() => firebase.generateKey));
-          const imageUrls = yield all(imageCollection.map((img, i) => firebase.storeImage(imageKeys[i](), 'products', img.file)));
-          images = imageUrls.map((url, i) => ({
-            id: imageKeys[i](),
-            url
-          }));
+          const imageKeys = yield all(imageCollection.map(() => call(firebase.generateKey)));
+          const imageUrls = yield all(imageCollection.map((img, i) => call(firebase.storeImage, imageKeys[i], 'products', img.file)));
+          images = imageUrls.map((url, i) => ({ id: imageKeys[i], url }));
         }
 
         const product = {
@@ -131,12 +128,9 @@ function* productSaga({ type, payload }) {
             }
           });
 
-          const imageKeys = yield all(newUploads.map(() => firebase.generateKey));
-          const imageUrls = yield all(newUploads.map((img, i) => firebase.storeImage(imageKeys[i](), 'products', img.file)));
-          const images = imageUrls.map((url, i) => ({
-            id: imageKeys[i](),
-            url
-          }));
+          const imageKeys = yield all(newUploads.map(() => call(firebase.generateKey)));
+          const imageUrls = yield all(newUploads.map((img, i) => call(firebase.storeImage, imageKeys[i], 'products', img.file)));
+          const images = imageUrls.map((url, i) => ({ id: imageKeys[i], url }));
           newUpdates = { ...newUpdates, imageCollection: [...existingUploads, ...images] };
         } else {
           newUpdates = {

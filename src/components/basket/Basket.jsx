@@ -11,7 +11,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { clearBasket } from '@/redux/actions/basketActions';
 
 const auth = firebase.auth;
-const db = firebase.db;
 
 const Basket = () => {
   const { isOpenModal, onOpenModal, onCloseModal } = useModal();
@@ -28,8 +27,7 @@ const Basket = () => {
     const saveBasketItems = async () => {
       if (didMount && auth.currentUser && basket.length !== 0) {
         try {
-          const userBasketRef = doc(db, "baskets", auth.currentUser.uid);
-          await setDoc(userBasketRef, { basket });
+          await firebase.saveBasketItems(basket, auth.currentUser.uid);
           console.log('Item saved to basket');
         } catch (e) {
           console.error("Error saving basket:", e);

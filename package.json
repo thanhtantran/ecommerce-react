@@ -11,7 +11,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently \"npm:server\" \"vite\"",
+    "dev": "concurrently \"node server/index.js\" \"vite --host\"",
     "server": "node server/index.js",
     "build": "vite build  && cd dist && cp index.html 404.html",
     "serve": "vite preview",

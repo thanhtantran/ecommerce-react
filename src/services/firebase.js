@@ -4,6 +4,11 @@ class LocalAuth {
   constructor() {
     this.currentUser = null;
     this.listeners = new Set();
+    const self = this;
+    this.auth = {
+      get currentUser() { return self.currentUser; },
+      onAuthStateChanged(callback) { return self.onAuthStateChanged(callback); }
+    };
   }
 
   // AUTH ACTIONS
